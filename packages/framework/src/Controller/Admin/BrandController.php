@@ -8,7 +8,7 @@ use Shopsys\FrameworkBundle\Component\Domain\Domain;
 use Shopsys\FrameworkBundle\Component\Grid\GridFactory;
 use Shopsys\FrameworkBundle\Component\Grid\QueryBuilderDataSource;
 use Shopsys\FrameworkBundle\Component\Router\Security\Annotation\CsrfProtection;
-use Shopsys\FrameworkBundle\Form\Admin\Product\Brand\BrandEditFormType;
+use Shopsys\FrameworkBundle\Form\Admin\Product\Brand\BrandFormType;
 use Shopsys\FrameworkBundle\Model\Administrator\AdministratorGridFacade;
 use Shopsys\FrameworkBundle\Model\AdminNavigation\Breadcrumb;
 use Shopsys\FrameworkBundle\Model\AdminNavigation\MenuItem;
@@ -76,7 +76,7 @@ class BrandController extends AdminBaseController
         $brand = $this->brandFacade->getById($id);
         $brandData = $this->brandDataFactory->createFromBrand($brand);
 
-        $form = $this->createForm(BrandEditFormType::class, $brandData, ['brand' => $brand]);
+        $form = $this->createForm(BrandFormType::class, $brandData, ['brand' => $brand]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -145,7 +145,7 @@ class BrandController extends AdminBaseController
      */
     public function newAction(Request $request)
     {
-        $form = $this->createForm(BrandEditFormType::class, new BrandData(), ['brand' => null]);
+        $form = $this->createForm(BrandFormType::class, new BrandData(), ['brand' => null]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

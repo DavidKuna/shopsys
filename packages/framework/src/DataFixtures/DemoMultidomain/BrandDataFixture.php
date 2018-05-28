@@ -1,16 +1,15 @@
 <?php
 
-namespace Shopsys\FrameworkBundle\DataFixtures\Demo;
+namespace Shopsys\FrameworkBundle\DataFixtures\DemoMultidomain;
 
-use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Shopsys\FrameworkBundle\Component\DataFixture\AbstractReferenceFixture;
-use Shopsys\FrameworkBundle\DataFixtures\Base\SettingValueDataFixture;
 use Shopsys\FrameworkBundle\Model\Product\Brand\BrandDataFactory;
 use Shopsys\FrameworkBundle\Model\Product\Brand\BrandFacade;
 
-class BrandDataFixture extends AbstractReferenceFixture implements DependentFixtureInterface
+class BrandDataFixture extends AbstractReferenceFixture
 {
+    const DOMAIN_ID = 2;
     const BRAND_APPLE = 'brand_apple';
     const BRAND_CANON = 'brand_canon';
     const BRAND_LG = 'brand_lg';
@@ -36,20 +35,26 @@ class BrandDataFixture extends AbstractReferenceFixture implements DependentFixt
     const BRAND_HYUNDAI = 'brand_hyundai';
     const BRAND_NIKON = 'brand_nikon';
 
-    /** @var \Shopsys\FrameworkBundle\Model\Product\Brand\BrandFacade */
-    private $brandFacade;
-
-    /** @var \Shopsys\FrameworkBundle\Model\Product\Brand\BrandDataFactory */
+    /**
+     * @var \Shopsys\FrameworkBundle\Model\Product\Brand\BrandDataFactory
+     */
     private $brandDataFactory;
 
     /**
-     * @param \Shopsys\FrameworkBundle\Model\Product\Brand\BrandFacade $brandFacade
-     * @param \Shopsys\FrameworkBundle\Model\Product\Brand\BrandDataFactory $brandDataFactory
+     * @var \Shopsys\FrameworkBundle\Model\Product\Brand\BrandFacade
      */
-    public function __construct(BrandFacade $brandFacade, BrandDataFactory $brandDataFactory)
-    {
-        $this->brandFacade = $brandFacade;
+    private $brandFacade;
+
+    /**
+     * @param \Shopsys\FrameworkBundle\Model\Product\Brand\BrandDataFactory $brandDataFactory
+     * @param \Shopsys\FrameworkBundle\Model\Product\Brand\BrandFacade $brandFacade
+     */
+    public function __construct(
+        BrandDataFactory $brandDataFactory,
+        BrandFacade $brandFacade
+    ) {
         $this->brandDataFactory = $brandDataFactory;
+        $this->brandFacade = $brandFacade;
     }
 
     /**
@@ -57,21 +62,21 @@ class BrandDataFixture extends AbstractReferenceFixture implements DependentFixt
      */
     public function load(ObjectManager $manager)
     {
-        $brandData = $this->brandDataFactory->createDefault();
+        $brandReferencesNames = $this->getBrandNamesIndexedByBrandConstants();
 
-        foreach ($this->getBrandNamesIndexedByBrandConstants() as $brandConstant => $brandName) {
-            $brandData->name = $brandName;
-            $brandData->descriptions = [
-                'cs' => 'Toto je popis značky ' . $brandData->name . '.',
-                'en' => 'This is description of brand ' . $brandData->name . '.',
-            ];
+        foreach ($brandReferencesNames as $referenceName => $brandName) {
+            $brand = $this->getReference($referenceName);
+            /* @var $brand \Shopsys\FrameworkBundle\Model\Product\Brand\Brand */
 
-            $brandData->seoTitles[1] = null;
-            $brandData->seoMetaDescriptions[1] = null;
-            $brandData->seoH1s[1] = null;
+            $brandData = $this->brandDataFactory->createFromBrand($brand);
 
-            $brand = $this->brandFacade->create($brandData);
-            $this->addReference($brandConstant, $brand);
+            $brandData->seoTitles[self::DOMAIN_ID] = null;
+            $brandData->seoMetaDescriptions[self::DOMAIN_ID] = null;
+            $brandData->seoH1s[self::DOMAIN_ID] = null;
+
+            $editedBrand = $this->brandFacade->edit($brand->getId(), $brandData);
+
+            $this->addReference($referenceName, $editedBrand);
         }
     }
 
@@ -105,16 +110,6 @@ class BrandDataFixture extends AbstractReferenceFixture implements DependentFixt
             self::BRAND_OLYMPUS => 'Olympus',
             self::BRAND_HYUNDAI => 'Hyundai',
             self::BRAND_NIKON => 'Nikon',
-        ];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDependencies()
-    {
-        return [
-            SettingValueDataFixture::class,
         ];
     }
 }
