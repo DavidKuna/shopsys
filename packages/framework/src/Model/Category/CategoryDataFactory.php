@@ -2,6 +2,7 @@
 
 namespace Shopsys\FrameworkBundle\Model\Category;
 
+use Shopsys\FrameworkBundle\Component\Domain\Domain;
 use Shopsys\FrameworkBundle\Component\Plugin\PluginCrudExtensionFacade;
 use Shopsys\FrameworkBundle\Component\Router\FriendlyUrl\FriendlyUrlFacade;
 
@@ -22,14 +23,21 @@ class CategoryDataFactory
      */
     protected $pluginCrudExtensionFacade;
 
+    /**
+     * @var \Shopsys\FrameworkBundle\Component\Domain\Domain
+     */
+    protected $domain;
+
     public function __construct(
         CategoryRepository $categoryRepository,
         FriendlyUrlFacade $friendlyUrlFacade,
-        PluginCrudExtensionFacade $pluginCrudExtensionFacade
+        PluginCrudExtensionFacade $pluginCrudExtensionFacade,
+        Domain $domain
     ) {
         $this->categoryRepository = $categoryRepository;
         $this->friendlyUrlFacade = $friendlyUrlFacade;
         $this->pluginCrudExtensionFacade = $pluginCrudExtensionFacade;
+        $this->domain = $domain;
     }
 
     /**
@@ -38,10 +46,10 @@ class CategoryDataFactory
      */
     public function createFromCategory(Category $category)
     {
-        $categoryDomains = $this->categoryRepository->getCategoryDomainsByCategory($category);
+        $categoryData = $this->createDefault();
+        $categoryData->setFromEntity($category);
 
-        $categoryData = new CategoryData();
-        $categoryData->setFromEntity($category, $categoryDomains);
+        $categoryDomains = $category->getCategoryDomains();
 
         foreach ($categoryDomains as $categoryDomain) {
             $domainId = $categoryDomain->getDomainId();
@@ -60,6 +68,18 @@ class CategoryDataFactory
      */
     public function createDefault()
     {
-        return new CategoryData();
+        $categoryData = new CategoryData();
+
+        $allDomainIds = $this->domain->getAllIds();
+
+        foreach ($allDomainIds as $domainId) {
+            $categoryData->seoMetaDescriptions[$domainId] = null;
+            $categoryData->seoTitles[$domainId] = null;
+            $categoryData->seoH1s[$domainId] = null;
+            $categoryData->descriptions[$domainId] = null;
+            $categoryData->enabled[$domainId] = false;
+        }
+
+        return $categoryData;
     }
 }

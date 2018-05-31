@@ -7,12 +7,12 @@ use Shopsys\FormTypesBundle\MultidomainType;
 use Shopsys\FrameworkBundle\Component\Domain\Config\DomainConfig;
 use Shopsys\FrameworkBundle\Component\Domain\Domain;
 use Shopsys\FrameworkBundle\Component\Plugin\PluginCrudExtensionFacade;
+use Shopsys\FrameworkBundle\Component\Transformers\ShowOnDomainBooleanToIntegerTransformer;
 use Shopsys\FrameworkBundle\Form\DisplayOnlyType;
 use Shopsys\FrameworkBundle\Form\DomainsType;
 use Shopsys\FrameworkBundle\Form\FormRenderingConfigurationExtension;
 use Shopsys\FrameworkBundle\Form\GroupType;
 use Shopsys\FrameworkBundle\Form\ImageUploadType;
-use Shopsys\FrameworkBundle\Form\InvertChoiceTypeExtension;
 use Shopsys\FrameworkBundle\Form\Locale\LocalizedType;
 use Shopsys\FrameworkBundle\Form\UrlListType;
 use Shopsys\FrameworkBundle\Model\Category\Category;
@@ -54,16 +54,23 @@ class CategoryFormType extends AbstractType
      */
     private $pluginCrudExtensionFacade;
 
+    /**
+     * @var \Shopsys\FrameworkBundle\Component\Transformers\ShowOnDomainBooleanToIntegerTransformer
+     */
+    private $showOnDomainBooleanToIntegerTransformer;
+
     public function __construct(
         CategoryFacade $categoryFacade,
         Domain $domain,
         SeoSettingFacade $seoSettingFacade,
-        PluginCrudExtensionFacade $pluginCrudExtensionFacade
+        PluginCrudExtensionFacade $pluginCrudExtensionFacade,
+        ShowOnDomainBooleanToIntegerTransformer $showOnDomainBooleanToIntegerTransformer
     ) {
         $this->categoryFacade = $categoryFacade;
         $this->domain = $domain;
         $this->seoSettingFacade = $seoSettingFacade;
         $this->pluginCrudExtensionFacade = $pluginCrudExtensionFacade;
+        $this->showOnDomainBooleanToIntegerTransformer = $showOnDomainBooleanToIntegerTransformer;
     }
 
     /**
@@ -143,12 +150,13 @@ class CategoryFormType extends AbstractType
                 'choice_value' => 'id',
                 'label' => t('Ancestor category'),
             ])
-            ->add('showOnDomains', DomainsType::class, [
-                InvertChoiceTypeExtension::INVERT_OPTION => true,
-                'property_path' => 'hiddenOnDomains',
+            ->add('enabled', DomainsType::class, [
                 'required' => false,
                 'label' => t('Display on'),
             ]);
+
+        $builderSettingsGroup->get('enabled')
+            ->addModelTransformer($this->showOnDomainBooleanToIntegerTransformer);
 
         $builderSeoGroup = $builder->create('seo', GroupType::class, [
             'label' => t('Seo'),

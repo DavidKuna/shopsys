@@ -38,9 +38,9 @@ class CategoryData
     public $parent;
 
     /**
-     * @var int[]
+     * @var bool[]
      */
-    public $hiddenOnDomains;
+    public $enabled;
 
     /**
      * @var \Shopsys\FrameworkBundle\Form\UrlListData
@@ -64,7 +64,7 @@ class CategoryData
         $this->seoMetaDescriptions = [];
         $this->seoH1s = [];
         $this->descriptions = [];
-        $this->hiddenOnDomains = [];
+        $this->enabled = [];
         $this->urls = new UrlListData();
         $this->image = new ImageUploadData();
         $this->pluginData = [];
@@ -72,35 +72,26 @@ class CategoryData
 
     /**
      * @param \Shopsys\FrameworkBundle\Model\Category\Category $category
-     * @param \Shopsys\FrameworkBundle\Model\Category\CategoryDomain[] $categoryDomains
      */
-    public function setFromEntity(Category $category, array $categoryDomains)
+    public function setFromEntity(Category $category)
     {
         $translations = $category->getTranslations();
+        $categoryDomains = $category->getCategoryDomains();
+
         $names = [];
         foreach ($translations as $translate) {
             $names[$translate->getLocale()] = $translate->getName();
         }
         $this->name = $names;
         $this->parent = $category->getParent();
-        $seoTitles = [];
-        $seoMetaDescriptions = [];
-        $seoH1 = [];
-        $descriptions = [];
-        $hiddenOnDomains = [];
         foreach ($categoryDomains as $categoryDomain) {
-            $seoTitles[$categoryDomain->getDomainId()] = $categoryDomain->getSeoTitle();
-            $seoMetaDescriptions[$categoryDomain->getDomainId()] = $categoryDomain->getSeoMetaDescription();
-            $seoH1[$categoryDomain->getDomainId()] = $categoryDomain->getSeoH1();
-            $descriptions[$categoryDomain->getDomainId()] = $categoryDomain->getDescription();
-            if ($categoryDomain->isHidden()) {
-                $hiddenOnDomains[] = $categoryDomain->getDomainId();
-            }
+            $domainId = $categoryDomain->getDomainId();
+
+            $this->seoTitles[$domainId] = $category->getSeoTitle($domainId);
+            $this->seoMetaDescriptions[$domainId] = $category->getSeoMetaDescription($domainId);
+            $this->seoH1s[$domainId] = $category->getSeoH1($domainId);
+            $this->descriptions[$domainId] = $category->getDescription($domainId);
+            $this->enabled[$domainId] = $category->isEnabled($domainId);
         }
-        $this->hiddenOnDomains = $hiddenOnDomains;
-        $this->seoTitles = $seoTitles;
-        $this->seoMetaDescriptions = $seoMetaDescriptions;
-        $this->seoH1s = $seoH1;
-        $this->descriptions = $descriptions;
     }
 }
