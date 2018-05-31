@@ -1,6 +1,7 @@
 <ul class="list-domain">
-    {% for productDomain in productDetail.productDomainsIndexedByDomainId %}
+    {% for productDomain in productDetail.product.domains %}
         <li class="list-domain__item">
+            {% set product = productDetail.product %}
             {% set url = findUrlByDomainId('front_product_detail', { id: productDetail.product.id }, productDomain.domainId) %}
             {% set isVisible = isVisibleForDefaultPricingGroup(productDetail.product, productDomain.domainId) %}
 
