@@ -11,10 +11,18 @@ use Doctrine\ORM\Mapping as ORM;
 class PaymentDomain
 {
     /**
+     * @var int
+     *
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    protected $id;
+
+    /**
      * @var \Shopsys\FrameworkBundle\Model\Payment\Payment
      *
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="Shopsys\FrameworkBundle\Model\Payment\Payment")
+     * @ORM\ManyToOne(targetEntity="Shopsys\FrameworkBundle\Model\Payment\Payment", inversedBy="domains")
      * @ORM\JoinColumn(nullable=false)
      */
     protected $payment;
@@ -22,7 +30,6 @@ class PaymentDomain
     /**
      * @var int
      *
-     * @ORM\Id
      * @ORM\Column(type="integer")
      */
     protected $domainId;

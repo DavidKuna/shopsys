@@ -4,7 +4,6 @@ namespace Tests\ShopBundle\Database\Model\Order;
 
 use Shopsys\FrameworkBundle\Model\Payment\Payment;
 use Shopsys\FrameworkBundle\Model\Payment\PaymentData;
-use Shopsys\FrameworkBundle\Model\Payment\PaymentDomain;
 use Shopsys\FrameworkBundle\Model\Payment\PaymentFacade;
 use Shopsys\FrameworkBundle\Model\Pricing\Vat\Vat;
 use Shopsys\FrameworkBundle\Model\Pricing\Vat\VatData;
@@ -23,8 +22,8 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
         $vat = new Vat(new VatData('vat', 21));
         $transport = new Transport(new TransportData(['cs' => 'transportName', 'en' => 'transportName'], $vat, [], [], false));
         $transportDomain = new TransportDomain($transport, 1);
-        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false));
-        $paymentDomain = new PaymentDomain($payment, 1);
+        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false, [$domainId]));
+
         $payment->addTransport($transport);
 
         $em->persist($vat);
@@ -33,7 +32,6 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
         $em->persist($transportDomain);
         $em->persist($payment);
         $em->flush();
-        $em->persist($paymentDomain);
         $em->flush();
 
         $transportFacade = $this->getContainer()->get(TransportFacade::class);
@@ -54,8 +52,8 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
         $vat = new Vat(new VatData('vat', 21));
         $transport = new Transport(new TransportData(['cs' => 'transportName', 'en' => 'transportName'], $vat, [], [], true));
         $transportDomain = new TransportDomain($transport, 1);
-        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false));
-        $paymentDomain = new PaymentDomain($payment, 1);
+        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false, [$domainId]));
+
         $payment->addTransport($transport);
 
         $em->persist($vat);
@@ -64,7 +62,6 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
         $em->persist($transportDomain);
         $em->persist($payment);
         $em->flush();
-        $em->persist($paymentDomain);
         $em->flush();
 
         $transportFacade = $this->getContainer()->get(TransportFacade::class);
@@ -86,7 +83,7 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
         $transport = new Transport(new TransportData(['cs' => 'transportName', 'en' => 'transportName'], $vat, [], [], false));
         $transportDomain = new TransportDomain($transport, 1);
         $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], true));
-        $paymentDomain = new PaymentDomain($payment, 1);
+
         $payment->addTransport($transport);
 
         $em->persist($vat);
@@ -95,7 +92,6 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
         $em->persist($transportDomain);
         $em->persist($payment);
         $em->flush();
-        $em->persist($paymentDomain);
         $em->flush();
 
         $transportFacade = $this->getContainer()->get(TransportFacade::class);
@@ -138,11 +134,12 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
     {
         $em = $this->getEntityManager();
 
+        $firstDomainId = 1;
         $vat = new Vat(new VatData('vat', 21));
         $transport = new Transport(new TransportData(['cs' => 'transportName', 'en' => 'transportName'], $vat, [], [], false));
         $transportDomain = new TransportDomain($transport, 2);
-        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false));
-        $paymentDomain = new PaymentDomain($payment, 1);
+        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false, [$firstDomainId]));
+
         $payment->addTransport($transport);
 
         $em->persist($vat);
@@ -150,8 +147,6 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
         $em->flush();
         $em->persist($transportDomain);
         $em->persist($payment);
-        $em->flush();
-        $em->persist($paymentDomain);
         $em->flush();
 
         $transportFacade = $this->getContainer()->get(TransportFacade::class);
@@ -169,11 +164,11 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
     {
         $em = $this->getEntityManager();
 
+        $secondDomainId = 2;
         $vat = new Vat(new VatData('vat', 21));
         $transport = new Transport(new TransportData(['cs' => 'transportName', 'en' => 'transportName'], $vat, [], [], false));
         $transportDomain = new TransportDomain($transport, 1);
-        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false));
-        $paymentDomain = new PaymentDomain($payment, 2);
+        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false, [$secondDomainId]));
         $payment->addTransport($transport);
 
         $em->persist($vat);
@@ -181,8 +176,6 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
         $em->flush();
         $em->persist($transportDomain);
         $em->persist($payment);
-        $em->flush();
-        $em->persist($paymentDomain);
         $em->flush();
 
         $transportFacade = $this->getContainer()->get(TransportFacade::class);
@@ -203,8 +196,8 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
         $vat = new Vat(new VatData('vat', 21));
         $transport = new Transport(new TransportData(['cs' => 'transportName', 'en' => 'transportName'], $vat, [], [], false));
         $transportDomain = new TransportDomain($transport, 1);
-        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false));
-        $paymentDomain = new PaymentDomain($payment, 1);
+        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false, [$domainId]));
+
         $payment->addTransport($transport);
 
         $em->persist($vat);
@@ -212,8 +205,6 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
         $em->flush();
         $em->persist($transportDomain);
         $em->persist($payment);
-        $em->flush();
-        $em->persist($paymentDomain);
         $em->flush();
 
         $paymentFacade = $this->getContainer()->get(PaymentFacade::class);
@@ -231,8 +222,8 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
         $vat = new Vat(new VatData('vat', 21));
         $transport = new Transport(new TransportData(['cs' => 'transportName', 'en' => 'transportName'], $vat, [], [], true));
         $transportDomain = new TransportDomain($transport, 1);
-        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false));
-        $paymentDomain = new PaymentDomain($payment, 1);
+        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false, [$domainId]));
+
         $payment->addTransport($transport);
 
         $em->persist($vat);
@@ -240,8 +231,6 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
         $em->flush();
         $em->persist($transportDomain);
         $em->persist($payment);
-        $em->flush();
-        $em->persist($paymentDomain);
         $em->flush();
 
         $paymentFacade = $this->getContainer()->get(PaymentFacade::class);
@@ -259,8 +248,8 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
         $vat = new Vat(new VatData('vat', 21));
         $transport = new Transport(new TransportData(['cs' => 'transportName', 'en' => 'transportName'], $vat, [], [], false));
         $transportDomain = new TransportDomain($transport, 1);
-        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], true));
-        $paymentDomain = new PaymentDomain($payment, 1);
+        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], true, [$domainId]));
+
         $payment->addTransport($transport);
 
         $em->persist($vat);
@@ -268,8 +257,6 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
         $em->flush();
         $em->persist($transportDomain);
         $em->persist($payment);
-        $em->flush();
-        $em->persist($paymentDomain);
         $em->flush();
 
         $paymentFacade = $this->getContainer()->get(PaymentFacade::class);
@@ -284,15 +271,13 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
     {
         $em = $this->getEntityManager();
 
+        $domainId = 1;
         $vat = new Vat(new VatData('vat', 21));
-        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false));
-        $paymentDomain = new PaymentDomain($payment, 1);
+        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false, [$domainId]));
 
         $em->persist($vat);
         $em->flush();
         $em->persist($payment);
-        $em->flush();
-        $em->persist($paymentDomain);
         $em->flush();
 
         $paymentFacade = $this->getContainer()->get(PaymentFacade::class);
@@ -307,11 +292,11 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
     {
         $em = $this->getEntityManager();
 
+        $secondDomainId = 2;
         $vat = new Vat(new VatData('vat', 21));
         $transport = new Transport(new TransportData(['cs' => 'transportName', 'en' => 'transportName'], $vat, [], [], false));
         $transportDomain = new TransportDomain($transport, 1);
-        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false));
-        $paymentDomain = new PaymentDomain($payment, 2);
+        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false, [$secondDomainId]));
         $payment->addTransport($transport);
 
         $em->persist($vat);
@@ -319,8 +304,6 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
         $em->flush();
         $em->persist($transportDomain);
         $em->persist($payment);
-        $em->flush();
-        $em->persist($paymentDomain);
         $em->flush();
 
         $paymentFacade = $this->getContainer()->get(PaymentFacade::class);
@@ -335,20 +318,18 @@ class OrderTransportAndPaymentTest extends DatabaseTestCase
     {
         $em = $this->getEntityManager();
 
+        $secondDomainId = 2;
         $vat = new Vat(new VatData('vat', 21));
         $transport = new Transport(new TransportData(['cs' => 'transportName', 'en' => 'transportName'], $vat, [], [], false));
         $transportDomain = new TransportDomain($transport, 2);
-        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false));
-        $paymentDomain = new PaymentDomain($payment, 1);
+        $payment = new Payment(new PaymentData(['cs' => 'paymentName', 'en' => 'paymentName'], $vat, [], [], false, [$secondDomainId]));
+
         $payment->addTransport($transport);
 
         $em->persist($vat);
         $em->persist($transport);
-        $em->flush();
         $em->persist($transportDomain);
         $em->persist($payment);
-        $em->flush();
-        $em->persist($paymentDomain);
         $em->flush();
 
         $paymentFacade = $this->getContainer()->get(PaymentFacade::class);

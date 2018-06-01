@@ -90,9 +90,8 @@ class PaymentData
 
     /**
      * @param \Shopsys\FrameworkBundle\Model\Payment\Payment $payment
-     * @param \Shopsys\FrameworkBundle\Model\Payment\PaymentDomain[] $paymentDomains
      */
-    public function setFromEntity(Payment $payment, array $paymentDomains)
+    public function setFromEntity(Payment $payment)
     {
         $this->vat = $payment->getVat();
         $this->hidden = $payment->isHidden();
@@ -112,10 +111,10 @@ class PaymentData
         $this->description = $descriptions;
         $this->instructions = $instructions;
 
-        $domains = [];
+        $paymentDomains = $payment->getDomains();
+
         foreach ($paymentDomains as $paymentDomain) {
-            $domains[] = $paymentDomain->getDomainId();
+            $this->domains[] = $paymentDomain->getDomainId();
         }
-        $this->domains = $domains;
     }
 }

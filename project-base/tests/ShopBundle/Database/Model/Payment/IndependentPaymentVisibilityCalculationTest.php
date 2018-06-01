@@ -5,7 +5,6 @@ namespace Tests\ShopBundle\Database\Model\Payment;
 use Shopsys\FrameworkBundle\Model\Payment\IndependentPaymentVisibilityCalculation;
 use Shopsys\FrameworkBundle\Model\Payment\Payment;
 use Shopsys\FrameworkBundle\Model\Payment\PaymentData;
-use Shopsys\FrameworkBundle\Model\Payment\PaymentDomain;
 use Shopsys\FrameworkBundle\Model\Pricing\Vat\Vat;
 use Shopsys\FrameworkBundle\Model\Pricing\Vat\VatData;
 use Tests\ShopBundle\Test\DatabaseTestCase;
@@ -18,14 +17,10 @@ class IndependentPaymentVisibilityCalculationTest extends DatabaseTestCase
 
         $domainId = 1;
         $vat = new Vat(new VatData('vat', 21));
-        $payment = new Payment(new PaymentData(['cs' => 'name', 'en' => 'name'], $vat, [], [], false));
+        $payment = new Payment(new PaymentData(['cs' => 'name', 'en' => 'name'], $vat, [], [], false, [$domainId]));
 
         $em->persist($vat);
         $em->persist($payment);
-        $em->flush();
-
-        $paymentDomain = new PaymentDomain($payment, $domainId);
-        $em->persist($paymentDomain);
         $em->flush();
 
         $independentPaymentVisibilityCalculation =
@@ -41,14 +36,10 @@ class IndependentPaymentVisibilityCalculationTest extends DatabaseTestCase
 
         $domainId = 1;
         $vat = new Vat(new VatData('vat', 21));
-        $payment = new Payment(new PaymentData(['cs' => null, 'en' => null], $vat, [], [], false));
+        $payment = new Payment(new PaymentData(['cs' => null, 'en' => null], $vat, [], [], false, [$domainId]));
 
         $em->persist($vat);
         $em->persist($payment);
-        $em->flush();
-
-        $paymentDomain = new PaymentDomain($payment, $domainId);
-        $em->persist($paymentDomain);
         $em->flush();
 
         $independentPaymentVisibilityCalculation =
@@ -71,10 +62,6 @@ class IndependentPaymentVisibilityCalculationTest extends DatabaseTestCase
         $em->persist($payment);
         $em->flush();
 
-        $paymentDomain = new PaymentDomain($payment, $diffetentDomainId);
-        $em->persist($paymentDomain);
-        $em->flush();
-
         $independentPaymentVisibilityCalculation =
             $this->getContainer()->get(IndependentPaymentVisibilityCalculation::class);
         /* @var $independentPaymentVisibilityCalculation \Shopsys\FrameworkBundle\Model\Payment\IndependentPaymentVisibilityCalculation */
@@ -88,14 +75,10 @@ class IndependentPaymentVisibilityCalculationTest extends DatabaseTestCase
 
         $domainId = 1;
         $vat = new Vat(new VatData('vat', 21));
-        $payment = new Payment(new PaymentData(['cs' => 'name', 'en' => 'name'], $vat, [], [], true));
+        $payment = new Payment(new PaymentData(['cs' => 'name', 'en' => 'name'], $vat, [], [], true, [$domainId]));
 
         $em->persist($vat);
         $em->persist($payment);
-        $em->flush();
-
-        $paymentDomain = new PaymentDomain($payment, $domainId);
-        $em->persist($paymentDomain);
         $em->flush();
 
         $independentPaymentVisibilityCalculation =

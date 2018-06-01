@@ -42,7 +42,7 @@ class PaymentDataFactory
     public function createFromPayment(Payment $payment)
     {
         $paymentData = new PaymentData();
-        $paymentData->setFromEntity($payment, $this->paymentFacade->getPaymentDomainsByPayment($payment));
+        $paymentData->setFromEntity($payment);
 
         foreach ($payment->getPrices() as $paymentPrice) {
             $paymentData->pricesByCurrencyId[$paymentPrice->getCurrency()->getId()] = $paymentPrice->getPrice();
