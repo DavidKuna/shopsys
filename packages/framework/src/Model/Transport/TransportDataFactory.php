@@ -42,7 +42,7 @@ class TransportDataFactory
     public function createFromTransport(Transport $transport)
     {
         $transportData = new TransportData();
-        $transportData->setFromEntity($transport, $this->transportFacade->getTransportDomainsByTransport($transport));
+        $transportData->setFromEntity($transport);
 
         foreach ($transport->getPrices() as $transportPrice) {
             $transportData->pricesByCurrencyId[$transportPrice->getCurrency()->getId()] = $transportPrice->getPrice();

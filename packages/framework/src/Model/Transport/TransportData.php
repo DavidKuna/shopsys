@@ -83,9 +83,8 @@ class TransportData
 
     /**
      * @param \Shopsys\FrameworkBundle\Model\Transport\Transport $transport
-     * @param \Shopsys\FrameworkBundle\Model\Transport\TransportDomain[] $transportDomains
      */
-    public function setFromEntity(Transport $transport, array $transportDomains)
+    public function setFromEntity(Transport $transport)
     {
         $translations = $transport->getTranslations();
         $names = [];
@@ -102,11 +101,10 @@ class TransportData
         $this->hidden = $transport->isHidden();
         $this->vat = $transport->getVat();
 
-        $domains = [];
+        $transportDomains = $transport->getDomains();
         foreach ($transportDomains as $transportDomain) {
-            $domains[] = $transportDomain->getDomainId();
+            $this->domains[] = $transportDomain->getDomainId();
         }
-        $this->domains = $domains;
         $this->payments = $transport->getPayments()->toArray();
     }
 }
