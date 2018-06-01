@@ -42,6 +42,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     - removed the bundle's public route that allowed lookup any DB table by any field
     - the purpose of the route is for ajax validation of an entity uniqueness but the feature is not used anyway  
 
+### [shopsys/migrations]
+- [Migrations now can be installed in different order or even be skipped]
+    - order of installed migration is saved in migrations_config.yml
+        - this order can be changed
+        - migrations can be marked as skipped
+
 ## [7.0.0-alpha2] - 2018-05-24
 ### [shopsys/framework]
 #### Added

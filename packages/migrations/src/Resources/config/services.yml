@@ -14,6 +14,15 @@ services:
       - '@Doctrine\DBAL\Schema\Comparator'
       - '@Doctrine\ORM\Tools\SchemaTool'
 
+  Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsFinder: ~
+
+  Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsConfig: ~
+
+  Doctrine\DBAL\Migrations\Finder\RecursiveRegexFinder: ~
+
+  Doctrine\DBAL\Migrations\Finder\MigrationFinderInterface:
+    alias: Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsFinder
+
   Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsLocator: ~
 
   Shopsys\MigrationBundle\Component\Doctrine\SchemaDiffFilter: ~

@@ -2,10 +2,12 @@
 
 namespace Shopsys\MigrationBundle\Command;
 
-use Doctrine\DBAL\Migrations\Configuration\Configuration;
+use Doctrine\DBAL\Migrations\Finder\MigrationFinderInterface;
 use Doctrine\DBAL\Migrations\OutputWriter;
 use Doctrine\DBAL\Migrations\Tools\Console\Helper\ConfigurationHelper;
 use Doctrine\ORM\EntityManagerInterface;
+use Shopsys\MigrationBundle\Component\Doctrine\Migrations\Configuration;
+use Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsConfig;
 use Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsLocator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -17,6 +19,9 @@ class MigrateCommand extends Command
 {
     const RETURN_CODE_OK = 0;
     const RETURN_CODE_ERROR = 1;
+
+    const MIGRATIONS_DIRECTORY = 'Migrations';
+    const MIGRATIONS_NAMESPACE = 'Migrations';
 
     /**
      * @var string
@@ -39,18 +44,27 @@ class MigrateCommand extends Command
     private $migrationsLocator;
 
     /**
-     * @param \Doctrine\ORM\EntityManagerInterface $em
-     * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
-     * @param \Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsLocator $migrationsLocator
+     * @var \Doctrine\DBAL\Migrations\Finder\MigrationFinderInterface
      */
+    private $migrationFinder;
+
+    /**
+     * @var \Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsConfig
+     */
+    private $migrationsConfig;
+
     public function __construct(
         EntityManagerInterface $em,
         ContainerInterface $container,
-        MigrationsLocator $migrationsLocator
+        MigrationsLocator $migrationsLocator,
+        MigrationFinderInterface $migrationFinder,
+        MigrationsConfig $migrationsConfig
     ) {
         $this->em = $em;
         $this->container = $container;
         $this->migrationsLocator = $migrationsLocator;
+        $this->migrationFinder = $migrationFinder;
+        $this->migrationsConfig = $migrationsConfig;
 
         parent::__construct();
     }
@@ -70,20 +84,13 @@ class MigrateCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         try {
-            $migrationsConfiguration = $this->createAndRegisterMigrationsConfiguration($output);
+            $this->createAndRegisterMigrationsConfiguration($output);
 
-            foreach ($this->migrationsLocator->getMigrationsLocations() as $migrationsLocation) {
-                $migrationsConfiguration->setMigrationsDirectory($migrationsLocation->getDirectory());
-                $migrationsConfiguration->setMigrationsNamespace($migrationsLocation->getNamespace());
+            $this->em->transactional(function () use ($output) {
+                $this->executeDoctrineMigrateCommand($output);
 
-                $output->writeln('Installing migrations from ' . $migrationsLocation->getDirectory() . ' in namespace ' . $migrationsLocation->getNamespace());
-
-                $this->em->transactional(function () use ($output) {
-                    $this->executeDoctrineMigrateCommand($output);
-
-                    $output->writeln('');
-                });
-            }
+                $output->writeln('');
+            });
 
             $output->writeln('Migrations from all sources has been installed.');
 
@@ -107,9 +114,13 @@ class MigrateCommand extends Command
             }
         );
 
-        $migrationsConfiguration = new Configuration($this->em->getConnection(), $outputWriter);
+        $migrationsConfiguration = new Configuration($this->migrationsConfig, $this->em->getConnection(), $outputWriter);
         $configurationHelper = new ConfigurationHelper($this->em->getConnection(), $migrationsConfiguration);
         $this->getApplication()->getHelperSet()->set($configurationHelper, 'configuration');
+
+        $migrationsConfiguration->setMigrationsDirectory(self::MIGRATIONS_DIRECTORY);
+        $migrationsConfiguration->setMigrationsNamespace(self::MIGRATIONS_NAMESPACE);
+        $migrationsConfiguration->setMigrationsFinder($this->migrationFinder);
 
         return $migrationsConfiguration;
     }
