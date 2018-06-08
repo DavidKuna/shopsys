@@ -43,7 +43,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     - the purpose of the route is for ajax validation of an entity uniqueness but the feature is not used anyway  
 
 ### [shopsys/migrations]
-- [Migrations now can be installed in different order or even be skipped]
+- [#185 Migrations now can be installed in different order or even be skipped](https://github.com/shopsys/shopsys/pull/185)
     - order of installed migration is saved in migrations_config.yml
         - this order can be changed
         - migrations can be marked as skipped

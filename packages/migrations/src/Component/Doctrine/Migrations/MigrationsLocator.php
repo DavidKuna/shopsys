@@ -19,13 +19,27 @@ class MigrationsLocator
     private $filesystem;
 
     /**
+     * @var string
+     */
+    private $relativeDirectory;
+
+    /**
+     * @var string
+     */
+    private $relativeNamespace;
+
+    /**
      * @param \Symfony\Component\HttpKernel\KernelInterface $kernel
      * @param \Symfony\Component\Filesystem\Filesystem $filesystem
+     * @param string $relativeDirectory
+     * @param string $relativeNamespace
      */
-    public function __construct(KernelInterface $kernel, Filesystem $filesystem)
+    public function __construct(KernelInterface $kernel, Filesystem $filesystem, $relativeDirectory, $relativeNamespace)
     {
         $this->kernel = $kernel;
         $this->filesystem = $filesystem;
+        $this->relativeDirectory = $relativeDirectory;
+        $this->relativeNamespace = $relativeNamespace;
     }
 
     /**
@@ -33,11 +47,11 @@ class MigrationsLocator
      * @param string $relativeNamespace
      * @return \Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsLocation[]
      */
-    public function getMigrationsLocations(string $relativeDirectory, string $relativeNamespace)
+    public function getMigrationsLocations()
     {
         $migrationsLocations = [];
         foreach ($this->kernel->getBundles() as $bundle) {
-            $migrationsLocation = $this->createMigrationsLocation($bundle, $relativeDirectory, $relativeNamespace);
+            $migrationsLocation = $this->createMigrationsLocation($bundle);
             if ($this->filesystem->exists($migrationsLocation->getDirectory())) {
                 $migrationsLocations[] = $migrationsLocation;
             }
@@ -48,15 +62,13 @@ class MigrationsLocator
 
     /**
      * @param \Symfony\Component\HttpKernel\Bundle\BundleInterface $bundle
-     * @param string $relativeDirectory
-     * @param string $relativeNamespace
      * @return \Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsLocation
      */
-    public function createMigrationsLocation(BundleInterface $bundle, string $relativeDirectory, string $relativeNamespace)
+    public function createMigrationsLocation(BundleInterface $bundle)
     {
         return new MigrationsLocation(
-            $bundle->getPath() . '/' . $relativeDirectory,
-            $bundle->getNamespace() . '\\' . $relativeNamespace
+            $bundle->getPath() . '/' . $this->relativeDirectory,
+            $bundle->getNamespace() . '\\' . $this->relativeNamespace
         );
     }
 }

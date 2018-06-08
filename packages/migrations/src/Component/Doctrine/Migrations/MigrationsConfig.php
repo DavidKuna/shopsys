@@ -7,22 +7,20 @@ use Symfony\Component\Yaml\Yaml;
 
 class MigrationsConfig
 {
-    const MIGRATIONS_CONFIG_FILE_NAME = 'migrations_config.yml';
-
     /**
      * @var string
      */
     private $migrationsConfigPath;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct($migrationsConfigPath)
     {
-        $this->migrationsConfigPath = $container->getParameter('shopsys.root_dir') . '/' . self::MIGRATIONS_CONFIG_FILE_NAME;
+        $this->migrationsConfigPath = $migrationsConfigPath;
     }
 
     /**
      * @return string[]
      */
-    private function getMigrationsConfig()
+    private function getMigrationsSetting()
     {
         if (file_exists($this->migrationsConfigPath)) {
             return Yaml::parseFile($this->migrationsConfigPath);
@@ -32,18 +30,19 @@ class MigrationsConfig
     }
 
     /**
+     * @param \Doctrine\DBAL\Migrations\Version[] $migrations
      * @return string[]
      */
-    public function getOrderedMigrationsToInstall()
+    public function getOrderedMigrationsToInstall(array $migrations)
     {
-        $migrationsConfig = $this->getMigrationsConfig();
+        $allMigrationsSettings = $this->getAllMigrationsSettings($migrations);
 
         $migrationsToInstall = [];
 
-        foreach ($migrationsConfig as $migrationVersion => $migrationConfig) {
+        foreach ($allMigrationsSettings as $migrationVersion => $migrationSetting) {
 
-            if (!$migrationConfig['skip']) {
-                $migrationsToInstall[$migrationVersion] = $migrationConfig['file'];
+            if (!$migrationSetting['skip']) {
+                $migrationsToInstall[$migrationVersion] = $migrationSetting['namespace'];
             }
         }
 
@@ -51,22 +50,13 @@ class MigrationsConfig
     }
 
     /**
-     * @param string[] $migrations
+     * @param \Doctrine\DBAL\Migrations\Version[] $migrations
      */
     public function updateMigrationsConfig(array $migrations)
     {
-        $migrationsConfig = $this->getMigrationsConfig();
+        $allMigrationsSettings = $this->getAllMigrationsSettings($migrations);
 
-        foreach ($migrations as $migrationVersion => $migrationFile) {
-            if (!array_key_exists($migrationVersion, $migrationsConfig)) {
-                $migrationsConfig[$migrationVersion] = [
-                    'file' => $migrationFile,
-                    'skip' => 0
-                ];
-            }
-        }
-
-        $this->saveMigrationsConfig($migrationsConfig);
+        $this->saveMigrationsConfig($allMigrationsSettings);
     }
 
     /**
@@ -77,5 +67,25 @@ class MigrationsConfig
         $yamlMigrationsConfig = Yaml::dump($migrationsConfig);
 
         file_put_contents($this->migrationsConfigPath, $yamlMigrationsConfig);
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Migrations\Version[] $migrations
+     * @return string[]
+     */
+    private function getAllMigrationsSettings(array $migrations)
+    {
+        $migrationsConfig = $this->getMigrationsSetting();
+
+        foreach ($migrations as $migrationVersion => $version) {
+            if (!array_key_exists($migrationVersion, $migrationsConfig)) {
+                $migrationsConfig[$migrationVersion] = [
+                    'namespace' => get_class($version->getMigration()),
+                    'skip' => false
+                ];
+            }
+        }
+
+        return $migrationsConfig;
     }
 }

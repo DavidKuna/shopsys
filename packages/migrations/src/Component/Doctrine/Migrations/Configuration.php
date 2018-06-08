@@ -45,7 +45,7 @@ class Configuration extends DoctrineConfiguration
             $migrations = parent::getMigrations();
             $orderedMigrations = [];
 
-            $orderedMigrationsToInstall = $this->migrationsConfig->getOrderedMigrationsToInstall();
+            $orderedMigrationsToInstall = $this->migrationsConfig->getOrderedMigrationsToInstall($migrations);
 
             foreach (array_keys($orderedMigrationsToInstall) as $version) {
                 if (array_key_exists($version, $migrations)) {

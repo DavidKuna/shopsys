@@ -16,14 +16,19 @@ services:
 
   Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsFinder: ~
 
-  Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsConfig: ~
+  Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsConfig:
+    arguments:
+        $migrationsConfigPath: '%shopsys.root_dir%/migrations_config.yml'
 
   Doctrine\DBAL\Migrations\Finder\RecursiveRegexFinder: ~
 
   Doctrine\DBAL\Migrations\Finder\MigrationFinderInterface:
     alias: Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsFinder
 
-  Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsLocator: ~
+  Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsLocator:
+    arguments:
+      $relativeDirectory: 'Migrations'
+      $relativeNamespace: 'Migrations'
 
   Shopsys\MigrationBundle\Component\Doctrine\SchemaDiffFilter: ~
 

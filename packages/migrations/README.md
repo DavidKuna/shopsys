@@ -26,6 +26,16 @@ This repository is maintained by [shopsys/shopsys] monorepo, information about c
     ```
 3. Configure `DoctrineMigrationsBundle` according to its documentation (see https://symfony.com/doc/current/bundles/DoctrineMigrationsBundle/index.html#configuration)
 
+## Ordering and skipping of migrations
+After first run of `shopsys:migrations:migrate` command is the `migrations_config.yml` file created in your project base root directory.
+It includes all installed migrations ordered by their version number.
+
+### Change order of migrations
+If you want to change migrations order simply change theirs order in `migrations_config.yml` file.
+
+### Skip migration
+If you want to skip migration so it is not installed, set skip for appropriate migration to true in `migrations_config.yml` file.
+
 ## Contributing
 Thank you for your contributions to Shopsys Migrations package.
 Together we are making Shopsys Framework better.

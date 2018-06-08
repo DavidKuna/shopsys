@@ -19,16 +19,10 @@ class MigrationsFinder implements MigrationFinderInterface
      */
     private $locator;
 
-    /**
-     * @var \Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsConfig
-     */
-    private $migrationsConfig;
-
-    public function __construct(RecursiveRegexFinder $finder, MigrationsLocator $locator, MigrationsConfig $migrationsConfig)
+    public function __construct(RecursiveRegexFinder $finder, MigrationsLocator $locator)
     {
         $this->finder = $finder;
         $this->locator = $locator;
-        $this->migrationsConfig = $migrationsConfig;
     }
 
     /**
@@ -54,8 +48,6 @@ class MigrationsFinder implements MigrationFinderInterface
 
         ksort($migrations, SORT_STRING);
 
-        $this->migrationsConfig->updateMigrationsConfig($migrations);
-
-        return $this->migrationsConfig->getOrderedMigrationsToInstall();
+        return $migrations;
     }
 }

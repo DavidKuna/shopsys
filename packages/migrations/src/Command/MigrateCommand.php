@@ -20,9 +20,6 @@ class MigrateCommand extends Command
     const RETURN_CODE_OK = 0;
     const RETURN_CODE_ERROR = 1;
 
-    const MIGRATIONS_DIRECTORY = 'Migrations';
-    const MIGRATIONS_NAMESPACE = 'Migrations';
-
     /**
      * @var string
      */
@@ -84,7 +81,7 @@ class MigrateCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         try {
-            $this->createAndRegisterMigrationsConfiguration($output);
+            $configuration = $this->createAndRegisterMigrationsConfiguration($output);
 
             $this->em->transactional(function () use ($output) {
                 $this->executeDoctrineMigrateCommand($output);
@@ -92,12 +89,12 @@ class MigrateCommand extends Command
                 $output->writeln('');
             });
 
-            $output->writeln('Migrations from all sources has been installed.');
+            $migrations = $configuration->getMigrations();
+            $this->migrationsConfig->updateMigrationsConfig($migrations);
 
             $this->executeCheckSchemaCommand($output);
         } catch (\Exception $ex) {
-            $message = "Database migration process did not run properly. Last transaction was reverted.\n"
-                . 'For more informations see the previous exception.';
+            $message = "Database migration process did not run properly. Transaction was reverted.";
             throw new \Shopsys\MigrationBundle\Command\Exception\MigrateCommandException($message, $ex);
         }
     }
@@ -114,13 +111,9 @@ class MigrateCommand extends Command
             }
         );
 
-        $migrationsConfiguration = new Configuration($this->migrationsConfig, $this->em->getConnection(), $outputWriter);
+        $migrationsConfiguration = new Configuration($this->migrationsConfig, $this->em->getConnection(), $outputWriter, $this->migrationFinder);
         $configurationHelper = new ConfigurationHelper($this->em->getConnection(), $migrationsConfiguration);
         $this->getApplication()->getHelperSet()->set($configurationHelper, 'configuration');
-
-        $migrationsConfiguration->setMigrationsDirectory(self::MIGRATIONS_DIRECTORY);
-        $migrationsConfiguration->setMigrationsNamespace(self::MIGRATIONS_NAMESPACE);
-        $migrationsConfiguration->setMigrationsFinder($this->migrationFinder);
 
         return $migrationsConfiguration;
     }
