@@ -50,6 +50,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
                 - Payment
                 - Transport
                 - Brand
+- [#228 - show selectbox options](https://github.com/shopsys/shopsys/pull/228)
+    - the use of jQuery plugin for selectboxes was modified on Shopsys Framework side so options will now be seen 
 
 ### [shopsys/project-base]
 #### Changed
