@@ -41,7 +41,7 @@ class IndependentTransportVisibilityCalculation
             return false;
         }
 
-        if (!$transport->isOnDomain($domainId)) {
+        if (!$transport->isEnabled($domainId)) {
             return false;
         }
 

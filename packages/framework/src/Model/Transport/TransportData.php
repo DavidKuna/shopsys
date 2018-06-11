@@ -38,11 +38,6 @@ class TransportData
     public $image;
 
     /**
-     * @var int[]
-     */
-    public $domains;
-
-    /**
      * @var \Shopsys\FrameworkBundle\Model\Payment\Payment[]
      */
     public $payments;
@@ -53,12 +48,17 @@ class TransportData
     public $pricesByCurrencyId;
 
     /**
+     * @var bool[]
+     */
+    public $enabled;
+
+    /**
      * @param string[] $names
      * @param \Shopsys\FrameworkBundle\Model\Pricing\Vat\Vat|null $vat
      * @param string[] $descriptions
      * @param string[] $instructions
      * @param bool $hidden
-     * @param int[] $domains
+     * @param array $enabled
      * @param string[] $pricesByCurrencyId
      */
     public function __construct(
@@ -67,7 +67,7 @@ class TransportData
         array $descriptions = [],
         array $instructions = [],
         $hidden = false,
-        array $domains = [],
+        array $enabled = [],
         array $pricesByCurrencyId = []
     ) {
         $this->name = $names;
@@ -75,8 +75,8 @@ class TransportData
         $this->description = $descriptions;
         $this->instructions = $instructions;
         $this->hidden = $hidden;
+        $this->enabled = $enabled;
         $this->image = new ImageUploadData();
-        $this->domains = $domains;
         $this->pricesByCurrencyId = $pricesByCurrencyId;
         $this->payments = [];
     }
@@ -87,6 +87,7 @@ class TransportData
     public function setFromEntity(Transport $transport)
     {
         $translations = $transport->getTranslations();
+        $domains = $transport->getDomains();
         $names = [];
         $descriptions = [];
         $instructions = [];
@@ -101,10 +102,10 @@ class TransportData
         $this->hidden = $transport->isHidden();
         $this->vat = $transport->getVat();
 
-        $transportDomains = $transport->getDomains();
-        foreach ($transportDomains as $transportDomain) {
-            $this->domains[] = $transportDomain->getDomainId();
+        foreach ($domains as $domain) {
+            $this->enabled[$domain->getDomainId()] = $domain->isEnabled();
         }
+
         $this->payments = $transport->getPayments()->toArray();
     }
 }

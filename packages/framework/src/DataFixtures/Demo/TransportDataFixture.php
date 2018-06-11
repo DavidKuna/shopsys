@@ -43,7 +43,9 @@ class TransportDataFixture extends AbstractReferenceFixture implements Dependent
             $this->getReference(CurrencyDataFixture::CURRENCY_EUR)->getId() => 3.95,
         ];
         $transportData->vat = $this->getReference(VatDataFixture::VAT_HIGH);
-        $transportData->domains = [Domain::FIRST_DOMAIN_ID];
+        $transportData->enabled = [
+            Domain::FIRST_DOMAIN_ID => true,
+        ];
         $this->createTransport(self::TRANSPORT_CZECH_POST, $transportData);
 
         $transportData = new TransportData();
@@ -56,7 +58,9 @@ class TransportDataFixture extends AbstractReferenceFixture implements Dependent
             $this->getReference(CurrencyDataFixture::CURRENCY_EUR)->getId() => 6.95,
         ];
         $transportData->vat = $this->getReference(VatDataFixture::VAT_HIGH);
-        $transportData->domains = [Domain::FIRST_DOMAIN_ID];
+        $transportData->enabled = [
+            Domain::FIRST_DOMAIN_ID => true,
+        ];
         $this->createTransport(self::TRANSPORT_PPL, $transportData);
 
         $transportData = new TransportData();
@@ -77,7 +81,9 @@ class TransportDataFixture extends AbstractReferenceFixture implements Dependent
             'en' => 'We are looking forward to your visit.',
         ];
         $transportData->vat = $this->getReference(VatDataFixture::VAT_ZERO);
-        $transportData->domains = [Domain::FIRST_DOMAIN_ID];
+        $transportData->enabled = [
+            Domain::FIRST_DOMAIN_ID => true,
+        ];
         $this->createTransport(self::TRANSPORT_PERSONAL, $transportData);
     }
 

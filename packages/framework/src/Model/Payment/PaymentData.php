@@ -28,11 +28,6 @@ class PaymentData
     public $instructions;
 
     /**
-     * @var int[]
-     */
-    public $domains;
-
-    /**
      * @var int
      */
     public $hidden;
@@ -58,13 +53,19 @@ class PaymentData
     public $pricesByCurrencyId;
 
     /**
+     * @var bool[]
+     */
+    public $enabled;
+
+    /**
      * @param string[] $name
      * @param \Shopsys\FrameworkBundle\Model\Pricing\Vat\Vat|null $vat
      * @param string[] $description
      * @param string[] $instructions
      * @param bool $hidden
-     * @param int[] $domains
+     * @param bool[] $enabled
      * @param bool $czkRounding
+     * @param array $pricesByCurrencyId
      */
     public function __construct(
         array $name = [],
@@ -72,7 +73,7 @@ class PaymentData
         array $description = [],
         array $instructions = [],
         $hidden = false,
-        array $domains = [],
+        array $enabled = [],
         $czkRounding = false,
         array $pricesByCurrencyId = []
     ) {
@@ -80,8 +81,8 @@ class PaymentData
         $this->vat = $vat;
         $this->description = $description;
         $this->instructions = $instructions;
-        $this->domains = $domains;
         $this->hidden = $hidden;
+        $this->enabled = $enabled;
         $this->image = new ImageUploadData();
         $this->transports = [];
         $this->czkRounding = $czkRounding;
@@ -99,22 +100,24 @@ class PaymentData
         $this->transports = $payment->getTransports()->toArray();
 
         $translations = $payment->getTranslations();
+        $domains = $payment->getDomains();
+
         $names = [];
         $descriptions = [];
         $instructions = [];
+
         foreach ($translations as $translate) {
             $names[$translate->getLocale()] = $translate->getName();
             $descriptions[$translate->getLocale()] = $translate->getDescription();
             $instructions[$translate->getLocale()] = $translate->getInstructions();
         }
+
+        foreach ($domains as $domain) {
+            $this->enabled[$domain->getDomainId()] = $domain->isEnabled();
+        }
+
         $this->name = $names;
         $this->description = $descriptions;
         $this->instructions = $instructions;
-
-        $paymentDomains = $payment->getDomains();
-
-        foreach ($paymentDomains as $paymentDomain) {
-            $this->domains[] = $paymentDomain->getDomainId();
-        }
     }
 }

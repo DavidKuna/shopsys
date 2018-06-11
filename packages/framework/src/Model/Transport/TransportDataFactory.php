@@ -2,6 +2,7 @@
 
 namespace Shopsys\FrameworkBundle\Model\Transport;
 
+use Shopsys\FrameworkBundle\Component\Domain\Domain;
 use Shopsys\FrameworkBundle\Model\Pricing\Vat\VatFacade;
 
 class TransportDataFactory
@@ -16,12 +17,19 @@ class TransportDataFactory
      */
     protected $vatFacade;
 
+    /**
+     * @var \Shopsys\FrameworkBundle\Component\Domain\Domain
+     */
+    private $domain;
+
     public function __construct(
         TransportFacade $transportFacade,
-        VatFacade $vatFacade
+        VatFacade $vatFacade,
+        Domain $domain
     ) {
         $this->transportFacade = $transportFacade;
         $this->vatFacade = $vatFacade;
+        $this->domain = $domain;
     }
 
     /**
@@ -32,6 +40,10 @@ class TransportDataFactory
         $transportData = new TransportData();
         $transportData->vat = $this->vatFacade->getDefaultVat();
 
+        foreach ($this->domain->getAllIds() as $domainId) {
+            $transportData->enabled[$domainId] = false;
+        }
+
         return $transportData;
     }
 
@@ -41,7 +53,7 @@ class TransportDataFactory
      */
     public function createFromTransport(Transport $transport)
     {
-        $transportData = new TransportData();
+        $transportData = $this->createDefault();
         $transportData->setFromEntity($transport);
 
         foreach ($transport->getPrices() as $transportPrice) {

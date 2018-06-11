@@ -92,6 +92,7 @@ class Transport extends AbstractTranslatableEntity implements OrderableEntityInt
     public function __construct(TransportData $transportData)
     {
         $this->translations = new ArrayCollection();
+        $this->domains = new ArrayCollection();
         $this->vat = $transportData->vat;
         $this->hidden = $transportData->hidden;
         $this->deleted = false;
@@ -162,6 +163,15 @@ class Transport extends AbstractTranslatableEntity implements OrderableEntityInt
     public function getInstructions($locale = null)
     {
         return $this->translation($locale)->getInstructions();
+    }
+
+    /**
+     * @param int $domainId
+     * @return bool
+     */
+    public function isEnabled($domainId)
+    {
+        return $this->getTransportDomain($domainId)->isEnabled();
     }
 
     /**
@@ -265,31 +275,21 @@ class Transport extends AbstractTranslatableEntity implements OrderableEntityInt
     /**
      * @param \Shopsys\FrameworkBundle\Model\Transport\TransportData $transportData
      */
-    private function setDomains(TransportData $transportData)
+    protected function setDomains(TransportData $transportData)
     {
-        foreach ($transportData->domains as $domainId) {
+        $domainIds = array_keys($transportData->enabled);
+
+        foreach ($domainIds as $domainId) {
             try {
-                $paymentDomain = $this->getTransportDomain($domainId);
+                $transportDomain = $this->getTransportDomain($domainId);
             } catch (TransportDomainNotFoundException $e) {
-                $paymentDomain = new TransportDomain($this, $domainId);
+                $transportDomain = new TransportDomain($this, $domainId);
             }
-            $this->domains[$domainId] = $paymentDomain;
-        }
-    }
 
-    /**
-     * @param int $domainId
-     * @return bool
-     */
-    public function isOnDomain($domainId)
-    {
-        foreach ($this->domains as $domain) {
-            if ($domain->getDomainId() === $domainId) {
-                return true;
-            }
-        }
+            $transportDomain->setEnabled($transportData->enabled[$domainId]);
 
-        return false;
+            $this->domains[] = $transportDomain;
+        }
     }
 
     /**

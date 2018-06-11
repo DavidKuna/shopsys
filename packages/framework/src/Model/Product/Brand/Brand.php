@@ -137,6 +137,14 @@ class Brand extends AbstractTranslatableEntity
     }
 
     /**
+     * @return \Shopsys\FrameworkBundle\Model\Product\Brand\BrandDomain[]|\Doctrine\Common\Collections\ArrayCollection
+     */
+    public function getBrandDomains()
+    {
+        return $this->domains;
+    }
+
+    /**
      * @param int $domainId
      * @return string|null
      */

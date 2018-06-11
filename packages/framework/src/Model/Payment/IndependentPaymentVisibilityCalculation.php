@@ -41,7 +41,7 @@ class IndependentPaymentVisibilityCalculation
             return false;
         }
 
-        if (!$payment->isOnDomain($domainId)) {
+        if (!$payment->isEnabled($domainId)) {
             return false;
         }
 

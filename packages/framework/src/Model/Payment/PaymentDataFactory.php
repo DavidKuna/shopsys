@@ -2,6 +2,7 @@
 
 namespace Shopsys\FrameworkBundle\Model\Payment;
 
+use Shopsys\FrameworkBundle\Component\Domain\Domain;
 use Shopsys\FrameworkBundle\Model\Pricing\Vat\VatFacade;
 
 class PaymentDataFactory
@@ -16,12 +17,19 @@ class PaymentDataFactory
      */
     protected $vatFacade;
 
+    /**
+     * @var \Shopsys\FrameworkBundle\Component\Domain\Domain
+     */
+    private $domain;
+
     public function __construct(
         PaymentFacade $paymentFacade,
-        VatFacade $vatFacade
+        VatFacade $vatFacade,
+        Domain $domain
     ) {
         $this->paymentFacade = $paymentFacade;
         $this->vatFacade = $vatFacade;
+        $this->domain = $domain;
     }
 
     /**
@@ -32,6 +40,10 @@ class PaymentDataFactory
         $paymentData = new PaymentData();
         $paymentData->vat = $this->vatFacade->getDefaultVat();
 
+        foreach ($this->domain->getAllIds() as $domainId) {
+            $paymentData->enabled[$domainId] = false;
+        }
+
         return $paymentData;
     }
 
@@ -41,7 +53,7 @@ class PaymentDataFactory
      */
     public function createFromPayment(Payment $payment)
     {
-        $paymentData = new PaymentData();
+        $paymentData = $this->createDefault();
         $paymentData->setFromEntity($payment);
 
         foreach ($payment->getPrices() as $paymentPrice) {

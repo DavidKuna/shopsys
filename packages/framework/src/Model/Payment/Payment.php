@@ -184,6 +184,7 @@ class Payment extends AbstractTranslatableEntity implements OrderableEntityInter
         $this->hidden = $paymentData->hidden;
         $this->czkRounding = $paymentData->czkRounding;
         $this->setTranslations($paymentData);
+        $this->setDomains($paymentData);
     }
 
     /**
@@ -274,6 +275,15 @@ class Payment extends AbstractTranslatableEntity implements OrderableEntityInter
     }
 
     /**
+     * @param int $domainId
+     * @return bool
+     */
+    public function isEnabled($domainId)
+    {
+        return $this->getPaymentDomain($domainId)->isEnabled();
+    }
+
+    /**
      * @return bool
      */
     public function isHidden()
@@ -340,13 +350,16 @@ class Payment extends AbstractTranslatableEntity implements OrderableEntityInter
      */
     private function setDomains(PaymentData $paymentData)
     {
-        foreach ($paymentData->domains as $domainId) {
+        $domainIds = array_keys($paymentData->enabled);
+
+        foreach ($domainIds as $domainId) {
             try {
                 $paymentDomain = $this->getPaymentDomain($domainId);
             } catch (PaymentDomainNotFoundException $e) {
                 $paymentDomain = new PaymentDomain($this, $domainId);
             }
-            $this->domains[$domainId] = $paymentDomain;
+            $paymentDomain->setEnabled($paymentData->enabled[$domainId]);
+            $this->domains[] = $paymentDomain;
         }
     }
 
@@ -365,20 +378,5 @@ class Payment extends AbstractTranslatableEntity implements OrderableEntityInter
         }
 
         throw new PaymentDomainNotFoundException($this->id, $domainId);
-    }
-
-    /**
-     * @param int $domainId
-     * @return bool
-     */
-    public function isOnDomain($domainId)
-    {
-        foreach ($this->domains as $domain) {
-            if ($domain->getDomainId() === $domainId) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

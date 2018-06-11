@@ -23,7 +23,7 @@ class TransportDomain
      * @var \Shopsys\FrameworkBundle\Model\Transport\Transport
      *
      * @ORM\ManyToOne(targetEntity="Shopsys\FrameworkBundle\Model\Transport\Transport", inversedBy="domains")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, name="transport_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $transport;
 
@@ -33,6 +33,13 @@ class TransportDomain
      * @ORM\Column(type="integer")
      */
     protected $domainId;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(type="boolean")
+     */
+    protected $enabled;
 
     /**
      * @param \Shopsys\FrameworkBundle\Model\Transport\Transport $transport
@@ -50,5 +57,21 @@ class TransportDomain
     public function getDomainId()
     {
         return $this->domainId;
+    }
+
+    /**
+     * @param bool $enabled
+     */
+    public function setEnabled(bool $enabled)
+    {
+        $this->enabled = $enabled;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEnabled()
+    {
+        return $this->enabled;
     }
 }

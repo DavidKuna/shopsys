@@ -52,7 +52,9 @@ class PaymentDataFixture extends AbstractReferenceFixture implements DependentFi
             'en' => '<b>You have chosen payment by credit card. Please finish it in two business days.</b>',
         ];
         $paymentData->vat = $this->getReference(VatDataFixture::VAT_ZERO);
-        $paymentData->domains = [Domain::FIRST_DOMAIN_ID];
+        $paymentData->enabled = [
+            Domain::FIRST_DOMAIN_ID => true,
+        ];
         $paymentData->hidden = false;
         $this->createPayment(self::PAYMENT_CARD, $paymentData, [
             TransportDataFixture::TRANSPORT_PERSONAL,

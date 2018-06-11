@@ -23,7 +23,7 @@ class PaymentDomain
      * @var \Shopsys\FrameworkBundle\Model\Payment\Payment
      *
      * @ORM\ManyToOne(targetEntity="Shopsys\FrameworkBundle\Model\Payment\Payment", inversedBy="domains")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, name="payment_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $payment;
 
@@ -35,6 +35,13 @@ class PaymentDomain
     protected $domainId;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(type="boolean")
+     */
+    protected $enabled;
+
+    /**
      * @param \Shopsys\FrameworkBundle\Model\Payment\Payment $payment
      * @param int $domainId
      */
@@ -42,6 +49,7 @@ class PaymentDomain
     {
         $this->payment = $payment;
         $this->domainId = $domainId;
+        $this->enabled = false;
     }
 
     /**
@@ -50,5 +58,21 @@ class PaymentDomain
     public function getDomainId()
     {
         return $this->domainId;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param bool $enabled
+     */
+    public function setEnabled(bool $enabled)
+    {
+        $this->enabled = $enabled;
     }
 }
