@@ -2,6 +2,8 @@ services:
     # Shopsys Checkers
     Shopsys\CodingStandards\CsFixer\MissingButtonTypeFixer: ~
     Shopsys\CodingStandards\CsFixer\OrmJoinColumnRequireNullableFixer: ~
+    Shopsys\CodingStandards\Sniffs\ControllerUsesOnlyFacadeSniff: ~
+    Shopsys\CodingStandards\Sniffs\ObjectIsCreatedViaFactorySniff: ~
     Shopsys\CodingStandards\Sniffs\ForbiddenExitSniff: ~
     Shopsys\CodingStandards\Sniffs\ForbiddenSuperGlobalSniff: ~
     # method arguments and variables should be $camelCase
